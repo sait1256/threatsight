@@ -1,0 +1,65 @@
+# =============================================================
+# ThreatSight — Docker Compose
+# =============================================================
+# Başlatmak için:
+#   docker compose up --build          # ilk kez
+#   docker compose up -d               # arka planda
+#   docker compose logs -f             # logları takip et
+#   docker compose down                # durdur
+#
+# GPU desteği için:
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up
+# =============================================================
+
+services:
+
+  threatsight:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: threatsight:latest
+    container_name: threatsight-api
+    restart: unless-stopped
+
+    ports:
+      - "8000:8000"           # API + Dashboard → http://localhost:8000
+
+    volumes:
+      - ./models:/app/models  # eğitilmiş modeller kalıcı
+      - ./logs:/app/logs      # loglar kalıcı
+      - ./data:/app/data      # dataset (opsiyonel)
+
+    environment:
+      - PYTHONUNBUFFERED=1
+      - THREATSIGHT_ENV=production
+
+    # Linux'ta webcam erişimi için
+    # Windows/Mac'te kamera doğrudan container'a geçmiyor
+    # (gerçek kamera için host network moduna geç)
+    devices:
+      - /dev/video0:/dev/video0  # birincil webcam (Linux)
+    # - /dev/video1:/dev/video1  # ikinci kamera varsa
+
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+    # Resource limitleri
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          memory: 512M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

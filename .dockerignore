@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*.pyo
+.pytest_cache
+*.egg-info
+dist/
+build/
+.eggs/
+
+# Sanal ortam
+venv/
+.venv/
+env/
+
+# Ağır dosyalar — container içinde indirilir
+models/*.pt
+models/*.onnx
+data/
+
+# Loglar
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Test
+tests/
+coverage.xml
+.coverage
+
+# Dökümantasyon
+docs/
+*.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI
+.github/

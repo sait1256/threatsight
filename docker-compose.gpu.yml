@@ -1,0 +1,21 @@
+# =============================================================
+# ThreatSight — GPU override dosyası
+# Kullanım:
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up
+#
+# Gereksinim: nvidia-container-toolkit kurulu olmalı
+#   https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/
+# =============================================================
+
+services:
+  threatsight:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility

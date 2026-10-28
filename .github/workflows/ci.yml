@@ -61,3 +61,23 @@ jobs:
       - name: Config gecerli mi
         run: |
           python -c "import yaml; cfg = yaml.safe_load(open('config/config.yaml')); assert 'model' in cfg; assert 'threat' in cfg; assert 'alerts' in cfg; print('Config OK')"
+
+  docker-build:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker imajı derle
+        run: |
+          docker build --target runtime -t threatsight:ci .
+
+      - name: Container saglik kontrolu
+        run: |
+          docker run --rm -d --name ts-test -p 8000:8000 threatsight:ci
+          sleep 15
+          curl -f http://localhost:8000/health || (docker logs ts-test && exit 1)
+          docker stop ts-test
+          echo "Docker build ve health check basarili!"
