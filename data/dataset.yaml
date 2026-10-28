@@ -1,0 +1,14 @@
+# ThreatSight - Custom Threat Detection Dataset
+# Sınıflar: knife, pistol, drone (gerçek tehdit nesneleri)
+
+path: data/threat_dataset      # dataset kök klasörü
+train: images/train
+val: images/val
+test: images/test
+
+# Sınıf sayısı ve isimleri
+nc: 3
+names:
+  0: knife
+  1: pistol
+  2: drone

@@ -1,19 +1,22 @@
 # ThreatSight Configuration
 
 model:
-  weights: "yolov8n.pt"        # yolov8n / yolov8s / yolov8m (n=hızlı, m=hassas)
-  device: "cuda"               # "cuda" veya "cpu"
-  confidence: 0.45             # Minimum detection confidence
-  iou_threshold: 0.50          # NMS IoU threshold
-  image_size: 640              # Inference resolution
-
+  # Eğitilmiş custom model varsa: models/threat_v1_best.pt
+  # Yoksa COCO modeli ile devam: yolov8n
+  weights: yolov8n
+  model_path: null          # Eğitim sonrası buraya: models/threat_v1_best.pt
+  device: cuda
+  confidence: 0.4
+  iou_threshold: 0.45
+  max_detections: 50
+  half_precision: true
 camera:
   source: 0                    # 0=webcam, "video.mp4", "rtsp://..."
   fps_limit: 30
   resolution: [1280, 720]
 threat:
   levels:
-    person: 1        # ← 1'den 3'e çektik (test için)
+    person: 1
     car: 1
     truck: 2
     motorcycle: 1
