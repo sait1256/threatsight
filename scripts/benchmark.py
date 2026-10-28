@@ -55,7 +55,7 @@ def benchmark(args):
 
     for i in range(args.runs):
         start = time.perf_counter()
-        _results = model(dummy_frame, device=device, verbose=False)
+        _ = model(dummy_frame, device=device, verbose=False)
         end = time.perf_counter()
         latencies.append((end - start) * 1000)  # ms cinsinden
 
