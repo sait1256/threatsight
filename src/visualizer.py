@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import time
 from src.detector import FrameResult
-from src.threat_scorer import ThreatScorer, ThreatAlert, THREAT_COLORS, THREAT_LABELS
+from src.threat_scorer import ThreatScorer, ThreatAlert, THREAT_COLORS
 
 
 class Visualizer:

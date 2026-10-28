@@ -9,7 +9,7 @@ import json
 import os
 import cv2
 import numpy as np
-from typing import List, Optional
+from typing import Optional
 # from src.detector import Detection  # used in type hints
 from src.threat_scorer import ThreatAlert
 

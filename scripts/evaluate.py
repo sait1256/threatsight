@@ -17,7 +17,6 @@ from pathlib import Path
 
 def evaluate(args):
     from ultralytics import YOLO
-    import cv2
 
     print("=" * 55)
     print("  ThreatSight — Model Evaluation")
