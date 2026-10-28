@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThreatSight — Live Dashboard</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --danger: #f85149;
+      --warn: #e3b341;
+      --ok: #3fb950;
+      --text: #e6edf3;
+      --muted: #8b949e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Üst bar ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--danger);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.5px; }
+    .subtitle { font-size: .75rem; color: var(--muted); }
+    #status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 600;
+      background: var(--border);
+      color: var(--muted);
+      transition: all .3s;
+    }
+    #status-badge.live { background: #1a3a1f; color: var(--ok); }
+    #status-badge.error { background: #3a1a1a; color: var(--danger); }
+
+    /* ── Ana grid ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+      padding: 16px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ── Stat tiles ── */
+    .stats-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .stat-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .stat-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+    .stat-value.ok    { color: var(--ok); }
+    .stat-value.warn  { color: var(--warn); }
+    .stat-value.danger{ color: var(--danger); }
+    .stat-value.accent{ color: var(--accent); }
+
+    /* ── Video bölümü ── */
+    .video-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .live-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+      animation: pulse 1.5s infinite;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50%      { opacity: .3; }
+    }
+    #stream-img {
+      width: 100%;
+      display: block;
+      background: #000;
+      min-height: 360px;
+      object-fit: contain;
+    }
+    .stream-overlay {
+      position: absolute;
+      bottom: 12px; left: 12px;
+      background: rgba(0,0,0,.6);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: .75rem;
+      color: var(--ok);
+      font-family: monospace;
+    }
+
+    /* ── Sağ panel ── */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .panel-body {
+      padding: 10px;
+      max-height: 240px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* ── Detection item ── */
+    .det-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 8px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      background: rgba(255,255,255,.03);
+      font-size: .82rem;
+    }
+    .det-label { font-weight: 600; }
+    .det-conf  { color: var(--muted); font-size: .75rem; margin-left: 6px; }
+    .badge {
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-CRITICAL { background: #3a0f0f; color: #f85149; }
+    .badge-HIGH     { background: #2e1f00; color: #e3b341; }
+    .badge-MEDIUM   { background: #1e2a1e; color: #7ee787; }
+    .badge-LOW      { background: #0d2337; color: #58a6ff; }
+    .badge-SAFE     { background: #1a1f2a; color: var(--muted); }
+
+    /* ── Alert item ── */
+    .alert-item {
+      display: flex;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      font-size: .79rem;
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } }
+    .alert-item.CRITICAL { background: rgba(248,81,73,.08); border-left: 3px solid var(--danger); }
+    .alert-item.HIGH     { background: rgba(227,179,65,.08); border-left: 3px solid var(--warn); }
+    .alert-time  { color: var(--muted); min-width: 54px; font-size: .72rem; }
+    .alert-label { font-weight: 600; }
+    .empty-msg   { text-align: center; color: var(--muted); font-size: .8rem; padding: 20px; }
+
+    /* ── Config paneli ── */
+    .config-body { padding: 12px; }
+    .config-row  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .config-row label { font-size: .8rem; color: var(--muted); }
+    .config-row input[type=range] { width: 130px; accent-color: var(--accent); }
+    .config-row span { font-size: .8rem; font-weight: 600; color: var(--accent); min-width: 36px; text-align: right; }
+    .btn {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .4; cursor: default; }
+
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .side-panel { grid-row: 3; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🎯</div>
+    <div>
+      <div><h1>ThreatSight</h1></div>
+      <div class="subtitle">Gerçek Zamanlı AI Tehdit Tespit Sistemi</div>
+    </div>
+  </div>
+  <div id="status-badge">Bağlanıyor…</div>
+</header>
+
+<div class="main">
+
+  <!-- Stat tiles -->
+  <div class="stats-row">
+    <div class="stat-tile">
+      <div class="stat-label">FPS</div>
+      <div class="stat-value accent" id="s-fps">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Anlık Tespit</div>
+      <div class="stat-value ok" id="s-det">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Toplam Alert</div>
+      <div class="stat-value warn" id="s-alert">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-label">Uptime</div>
+      <div class="stat-value accent" id="s-uptime">—</div>
+    </div>
+  </div>
+
+  <!-- Video -->
+  <div class="video-panel">
+    <div class="panel-header">
+      <span><span class="live-dot"></span>Canlı Video</span>
+      <span id="model-label" style="font-size:.72rem;">—</span>
+    </div>
+    <img id="stream-img" src="/stream" alt="Video akışı" />
+    <div class="stream-overlay" id="fps-overlay">FPS: —</div>
+  </div>
+
+  <!-- Sağ panel -->
+  <div class="side-panel">
+
+    <!-- Tespitler -->
+    <div class="panel">
+      <div class="panel-header">
+        <span>📍 Son Tespitler</span>
+        <span id="det-count" style="color:var(--accent);">0</span>
+      </div>
+      <div class="panel-body" id="det-list">
+        <div class="empty-msg">Tespit bekleniyor…</div>
+      </div>
+    </div>
+
+    <!-- Alertler -->
+    <div class="panel">
+      <div class="panel-header">
+        <span>🚨 Alert Geçmişi</span>
+        <span id="alert-count" style="color:var(--warn);">0</span>
+      </div>
+      <div class="panel-body" id="alert-list">
+        <div class="empty-msg">Alert yok</div>
+      </div>
+    </div>
+
+    <!-- Config -->
+    <div class="panel">
+      <div class="panel-header">⚙️ Ayarlar</div>
+      <div class="config-body">
+        <div class="config-row">
+          <label>Güven eşiği</label>
+          <input type="range" id="conf-slider" min="10" max="90" value="40" step="5" />
+          <span id="conf-val">0.40</span>
+        </div>
+        <div class="config-row">
+          <label>Alert eşiği</label>
+          <input type="range" id="alert-slider" min="10" max="90" value="50" step="5" />
+          <span id="alert-val">0.50</span>
+        </div>
+        <button class="btn" id="apply-btn" onclick="applyConfig()">Uygula</button>
+      </div>
+    </div>
+
+  </div><!-- /side-panel -->
+</div><!-- /main -->
+
+<script>
+  const API = '';  // aynı origin
+
+  // -- Slider değerleri göster --
+  document.getElementById('conf-slider').addEventListener('input', e => {
+    document.getElementById('conf-val').textContent = (e.target.value / 100).toFixed(2);
+  });
+  document.getElementById('alert-slider').addEventListener('input', e => {
+    document.getElementById('alert-val').textContent = (e.target.value / 100).toFixed(2);
+  });
+
+  // -- Stats polling (1 sn) --
+  async function fetchStats() {
+    try {
+      const r = await fetch(API + '/stats');
+      const d = await r.json();
+      document.getElementById('s-fps').textContent     = d.fps ?? '—';
+      document.getElementById('fps-overlay').textContent = `FPS: ${d.fps ?? '—'}`;
+      document.getElementById('s-uptime').textContent  = formatUptime(d.uptime_sec);
+      document.getElementById('model-label').textContent = d.model ?? '';
+      setBadge(d.running);
+    } catch (_) { setBadge(false); }
+  }
+
+  // -- Detections polling (500ms) --
+  async function fetchDetections() {
+    try {
+      const r = await fetch(API + '/detections');
+      const d = await r.json();
+      document.getElementById('s-det').textContent   = d.count;
+      document.getElementById('det-count').textContent = d.count;
+
+      const el = document.getElementById('det-list');
+      if (d.count === 0) {
+        el.innerHTML = '<div class="empty-msg">Tespit yok</div>';
+        return;
+      }
+      el.innerHTML = d.detections.map(det => `
+        <div class="det-item">
+          <span>
+            <span class="det-label">${det.label}</span>
+            <span class="det-conf">${(det.confidence*100).toFixed(0)}%</span>
+          </span>
+          <span class="badge badge-${det.threat_level}">${det.threat_level}</span>
+        </div>
+      `).join('');
+    } catch (_) {}
+  }
+
+  // -- Alerts polling (2 sn) --
+  async function fetchAlerts() {
+    try {
+      const r = await fetch(API + '/alerts?limit=15');
+      const d = await r.json();
+      document.getElementById('s-alert').textContent    = d.count;
+      document.getElementById('alert-count').textContent = d.count;
+
+      const el = document.getElementById('alert-list');
+      if (d.count === 0) {
+        el.innerHTML = '<div class="empty-msg">Alert yok</div>';
+        return;
+      }
+      el.innerHTML = d.alerts.map(a => `
+        <div class="alert-item ${a.threat_level}">
+          <span class="alert-time">${a.timestamp}</span>
+          <span>
+            <span class="alert-label">${a.label}</span>
+            <span class="det-conf"> ${(a.confidence*100).toFixed(0)}%</span>
+          </span>
+          <span class="badge badge-${a.threat_level}">${a.threat_level}</span>
+        </div>
+      `).join('');
+    } catch (_) {}
+  }
+
+  // -- Config gönder --
+  async function applyConfig() {
+    const btn = document.getElementById('apply-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uygulanıyor…';
+    try {
+      const body = {
+        confidence:       parseFloat(document.getElementById('conf-val').textContent),
+        alert_threshold:  parseFloat(document.getElementById('alert-val').textContent),
+      };
+      const r = await fetch(API + '/config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body),
+      });
+      const d = await r.json();
+      btn.textContent = d.status === 'güncellendi' ? '✓ Uygulandı' : 'Hata';
+    } catch (_) { btn.textContent = 'Bağlantı hatası'; }
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Uygula'; }, 2000);
+  }
+
+  // -- Helpers --
+  function formatUptime(sec) {
+    if (!sec) return '—';
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = Math.floor(sec % 60);
+    return h > 0 ? `${h}s ${m}d` : m > 0 ? `${m}d ${s}sn` : `${s}sn`;
+  }
+
+  function setBadge(running) {
+    const b = document.getElementById('status-badge');
+    if (running) {
+      b.textContent = '● CANLI';
+      b.className = 'live';
+    } else {
+      b.textContent = '○ Bağlantı yok';
+      b.className = 'error';
+    }
+  }
+
+  // -- Stream img hata yönetimi --
+  const img = document.getElementById('stream-img');
+  img.onerror = () => {
+    setTimeout(() => { img.src = '/stream?' + Date.now(); }, 2000);
+  };
+
+  // -- Polling döngüleri --
+  fetchStats();
+  fetchDetections();
+  fetchAlerts();
+  setInterval(fetchStats,      1000);
+  setInterval(fetchDetections,  500);
+  setInterval(fetchAlerts,     2000);
+</script>
+</body>
+</html>
