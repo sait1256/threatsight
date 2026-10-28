@@ -63,7 +63,7 @@ def evaluate(args):
             name="threat_eval",
         )
 
-        print(f"\n✅ Sonuçlar kaydedildi: runs/eval/threat_eval/")
+        print("\n✅ Sonuçlar kaydedildi: runs/eval/threat_eval/")
         print(f"   Toplam tespit: {sum(len(r.boxes) for r in results)}")
 
         # Sınıf bazlı özet

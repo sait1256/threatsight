@@ -89,4 +89,3 @@ class Visualizer:
             frame, f"!! {alert.message}",
             (12, h - 16), self.FONT, 0.65, text_color, 2, cv2.LINE_AA,
         )
-        

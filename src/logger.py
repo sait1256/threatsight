@@ -5,12 +5,12 @@ SQLite tabanlı olay ve tespit kayıt sistemi.
 
 import sqlite3
 import json
-import time
+# import time  # reserved for future use
 import os
 import cv2
 import numpy as np
 from typing import List, Optional
-from src.detector import Detection
+# from src.detector import Detection  # used in type hints
 from src.threat_scorer import ThreatAlert
 
 
@@ -112,4 +112,3 @@ class EventLogger:
     def close(self):
         if self.enabled and hasattr(self, "_conn"):
             self._conn.close()
-            

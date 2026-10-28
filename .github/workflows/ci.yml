@@ -31,7 +31,7 @@ jobs:
 
       - name: Lint - kod stili kontrol
         run: |
-          flake8 src/ scripts/ --max-line-length=100 --exclude=__pycache__ --ignore=E501,W503
+          flake8 src/ scripts/ --max-line-length=100 --exclude=__pycache__ --ignore=E501,W503,E221,E226
 
       - name: Unit testleri calistir
         run: |

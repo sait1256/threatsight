@@ -20,7 +20,7 @@ Kullanım:
 import argparse
 import yaml
 import time
-import os
+# import os  # reserved
 from pathlib import Path
 
 
@@ -84,7 +84,7 @@ def train(args):
         device=args.device,
         project=args.project,
         name=args.name,
-        
+
         # Optimizasyon
         optimizer="AdamW",
         lr0=0.001,
@@ -92,7 +92,7 @@ def train(args):
         momentum=0.937,
         weight_decay=0.0005,
         warmup_epochs=3,
-        
+
         # Augmentation (veri çoğaltma — küçük dataset için kritik)
         augment=True,
         flipud=0.0,
@@ -104,12 +104,12 @@ def train(args):
         hsv_v=0.4,         # Parlaklık değişimi
         scale=0.5,         # Ölçek değişimi
         translate=0.1,     # Konum değişimi
-        
+
         # Kaydetme
         save=True,
         save_period=10,    # Her 10 epoch'ta checkpoint
         patience=20,       # Early stopping (20 epoch gelişme yoksa dur)
-        
+
         # Log
         verbose=True,
         plots=True,        # Eğitim grafikleri kaydet
@@ -125,7 +125,7 @@ def train(args):
     print(f"  Süre      : {elapsed/60:.1f} dakika")
     print(f"  mAP50     : {results.results_dict.get('metrics/mAP50(B)', 0):.3f}")
     print(f"  mAP50-95  : {results.results_dict.get('metrics/mAP50-95(B)', 0):.3f}")
-    
+
     best_model = Path(args.project) / args.name / "weights" / "best.pt"
     print(f"\n  En iyi model: {best_model}")
     print("=" * 55)

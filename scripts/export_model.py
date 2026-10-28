@@ -55,7 +55,7 @@ def export(args):
 
     exported_path = model.export(**export_kwargs)
 
-    print(f"\n✅ Export tamamlandı!")
+    print("\n✅ Export tamamlandı!")
     print(f"   Konum : {exported_path}")
 
     # Dosya boyutu
@@ -65,7 +65,7 @@ def export(args):
         print(f"   Boyut : {size_mb:.1f} MB")
 
     # Kullanım talimatı
-    print(f"\n  Bu modeli kullanmak için:")
+    print("\n  Bu modeli kullanmak için:")
     if args.format == "onnx":
         print("    from ultralytics import YOLO")
         print(f"    model = YOLO('{exported_path}')")

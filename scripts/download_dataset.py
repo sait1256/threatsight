@@ -18,10 +18,10 @@ from pathlib import Path
 def download_from_roboflow(api_key: str, output_dir: str = "data/threat_dataset"):
     """
     Roboflow'dan knife/pistol/drone dataset indir.
-    
+
     Roboflow Universe'den ücretsiz kullanılabilir dataset'ler:
     - Knife Detection: roboflow.com/universe/projects/knife-detection
-    - Pistol Detection: roboflow.com/universe/projects/pistol-detection  
+    - Pistol Detection: roboflow.com/universe/projects/pistol-detection
     - Drone Detection: roboflow.com/universe/projects/drone-detection
     """
     try:
@@ -34,11 +34,11 @@ def download_from_roboflow(api_key: str, output_dir: str = "data/threat_dataset"
     print("=" * 55)
     print("  ThreatSight — Dataset Downloader")
     print("=" * 55)
-    
+
     os.makedirs(output_dir, exist_ok=True)
 
     rf = Roboflow(api_key=api_key)
-    
+
     # Knife Detection Dataset (public)
     print("\n[1/3] Knife dataset indiriliyor...")
     project = rf.workspace("roboflow-universe-projects").project("knife-detection-lvn3t")
@@ -106,12 +106,12 @@ def download_demo_mode(output_dir: str = "data/threat_dataset"):
 def main():
     parser = argparse.ArgumentParser(description="ThreatSight Dataset Downloader")
     parser.add_argument(
-        "--api-key", 
+        "--api-key",
         default=None,
         help="Roboflow API key (roboflow.com/settings/api adresinden al)"
     )
     parser.add_argument(
-        "--output", 
+        "--output",
         default="data/threat_dataset",
         help="Dataset indirme klasörü"
     )
