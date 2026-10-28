@@ -1,0 +1,44 @@
+# ThreatSight Configuration
+
+model:
+  weights: "yolov8n.pt"        # yolov8n / yolov8s / yolov8m (n=hızlı, m=hassas)
+  device: "cuda"               # "cuda" veya "cpu"
+  confidence: 0.45             # Minimum detection confidence
+  iou_threshold: 0.50          # NMS IoU threshold
+  image_size: 640              # Inference resolution
+
+camera:
+  source: 0                    # 0=webcam, "video.mp4", "rtsp://..."
+  fps_limit: 30
+  resolution: [1280, 720]
+threat:
+  levels:
+    person: 1        # ← 1'den 3'e çektik (test için)
+    car: 1
+    truck: 2
+    motorcycle: 1
+    knife: 3
+    gun: 3
+    backpack: 1
+    handbag: 1
+    airplane: 2
+    helicopter: 3
+    drone: 3
+  multi_threat_multiplier: 1.5
+
+alerts:
+  enabled: true
+  cooldown_seconds: 5
+  high_threat_threshold: 3
+
+logging:
+  enabled: true
+  db_path: "logs/events.db"
+  save_snapshots: true
+  snapshot_dir: "logs/snapshots"
+
+display:
+  show_fps: true
+  show_confidence: true
+  show_threat_level: true
+  bbox_thickness: 2
