@@ -1,0 +1,24 @@
+[Unit]
+Description=ThreatSight Edge AI Threat Detection
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/threatsight
+ExecStart=/home/pi/threatsight/venv/bin/python deploy/edge_inference.py \
+    --model models/threat_v1_best.onnx \
+    --source 0 \
+    --conf 0.5 \
+    --headless \
+    --cooldown 5.0 \
+    --mqtt-broker 192.168.1.100 \
+    --device-id rpi-01
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

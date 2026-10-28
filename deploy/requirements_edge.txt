@@ -1,0 +1,8 @@
+# ThreatSight — Edge (Raspberry Pi / Jetson Nano) bağımlılıkları
+# Kurulum: pip install -r deploy/requirements_edge.txt
+
+onnxruntime>=1.16.0          # CPU çıkarım (Jetson için: onnxruntime-gpu)
+opencv-python-headless>=4.8  # Headless OpenCV (display gerektirmez)
+numpy>=1.24
+paho-mqtt>=1.6               # MQTT alertleri için (opsiyonel)
+# RPi.GPIO                   # Raspberry Pi GPIO (RPi'de otomatik kurulu)
