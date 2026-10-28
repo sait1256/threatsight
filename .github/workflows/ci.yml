@@ -1,5 +1,5 @@
 # ThreatSight — CI/CD Pipeline
-# GitHub'a her push/PR'da otomatik çalışır.
+# GitHub'a her push/PR'da otomatik calisir.
 
 name: ThreatSight CI
 
@@ -24,19 +24,16 @@ jobs:
           python-version: "3.10"
           cache: "pip"
 
-      - name: Bağımlılıkları yükle
+      - name: Bagimliliklar yukle
         run: |
           pip install --upgrade pip
-          pip install ultralytics opencv-python-headless torch torchvision \
-                      PyYAML numpy pytest flake8
+          pip install ultralytics opencv-python-headless torch torchvision PyYAML numpy pytest flake8
 
-      - name: Lint — kod stili kontrol (flake8)
+      - name: Lint - kod stili kontrol
         run: |
-          flake8 src/ scripts/ --max-line-length=100 \
-            --exclude=__pycache__ \
-            --ignore=E501,W503
+          flake8 src/ scripts/ --max-line-length=100 --exclude=__pycache__ --ignore=E501,W503
 
-      - name: Unit testleri çalıştır
+      - name: Unit testleri calistir
         run: |
           pytest tests/ -v --tb=short
 
@@ -53,19 +50,14 @@ jobs:
           python-version: "3.10"
           cache: "pip"
 
-      - name: Bağımlılıkları yükle
-        run: pip install ultralytics torch torchvision PyYAML numpy
+      - name: Bagimliliklar yukle
+        run: |
+          pip install ultralytics torch torchvision PyYAML numpy
 
-      - name: YOLOv8 yüklenebilir mi?
-        run: python -c "from ultralytics import YOLO; m = YOLO('yolov8n.pt'); print('Model OK:', m.info())"
+      - name: YOLOv8 yuklenebilir mi
+        run: |
+          python -c "from ultralytics import YOLO; m = YOLO('yolov8n.pt'); print('Model OK')"
 
-      - name: Config geçerli mi?
-        run: python -c "
-import yaml
-with open('config/config.yaml') as f:
-    cfg = yaml.safe_load(f)
-assert 'model' in cfg, 'model section missing'
-assert 'threat' in cfg, 'threat section missing'
-assert 'alerts' in cfg, 'alerts section missing'
-print('Config OK — tüm alanlar mevcut')
-"
+      - name: Config gecerli mi
+        run: |
+          python -c "import yaml; cfg = yaml.safe_load(open('config/config.yaml')); assert 'model' in cfg; assert 'threat' in cfg; assert 'alerts' in cfg; print('Config OK')"
